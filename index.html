@@ -1,0 +1,1160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Academic Proficiency Test</title>
+    <style>
+        :root {
+            --primary: #3a5a78;
+            --secondary: #6d9f71;
+            --accent: #d4a017;
+            --correct: #4caf50;
+            --incorrect: #f44336;
+            --background: #1e1e1e;
+            --text-light: #f5f5f5;
+            --text-dark: #212121;
+            --math-pattern: rgba(74, 144, 226, 0.05);
+        }
+
+        body {
+            margin: 0;
+            padding: 20px;
+            font-family: 'Cambria', 'Georgia', serif;
+            background: 
+                radial-gradient(circle at 10% 20%, var(--math-pattern) 0%, transparent 20%),
+                radial-gradient(circle at 90% 80%, var(--math-pattern) 0%, transparent 20%),
+                linear-gradient(to bottom, #1a1a2e, #16213e);
+            color: var(--text-light);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: rgba(30, 30, 30, 0.85);
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(109, 159, 113, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .container::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                linear-gradient(135deg, transparent 65%, rgba(109, 159, 113, 0.1) 100%),
+                linear-gradient(-135deg, transparent 65%, rgba(212, 160, 23, 0.1) 100%);
+            z-index: -1;
+        }
+
+        h1, h2, h3 {
+            color: var(--secondary);
+            font-weight: 700;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            text-align: center;
+            margin-bottom: 15px;
+            position: relative;
+        }
+
+        h1::after {
+            content: "";
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100px;
+            height: 3px;
+            background: linear-gradient(to right, var(--secondary), var(--accent));
+        }
+
+        .timer {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: var(--accent);
+            color: var(--text-dark);
+            padding: 10px 20px;
+            border-radius: 50px;
+            font-weight: bold;
+            box-shadow: 0 4px 15px rgba(212, 160, 23, 0.3);
+            font-family: 'Courier New', monospace;
+            font-size: 1.1rem;
+        }
+
+        .question-box {
+            margin: 25px 0;
+            padding: 25px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            border-left: 4px solid var(--secondary);
+            transition: all 0.3s ease;
+        }
+
+        .question-box:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .options {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 12px;
+            margin-top: 20px;
+        }
+
+        .options label {
+            display: flex;
+            align-items: center;
+            padding: 15px 20px;
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .options label:hover {
+            background: rgba(109, 159, 113, 0.2);
+        }
+
+        .options label::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            transition: 0.5s;
+        }
+
+        .options label:hover::before {
+            left: 100%;
+        }
+
+        button {
+            background: linear-gradient(to right, var(--secondary), #5d8b61);
+            color: var(--text-dark);
+            border: none;
+            padding: 15px 30px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            margin: 30px auto 10px;
+            transition: all 0.3s;
+            display: block;
+            width: 250px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            box-shadow: 0 5px 15px rgba(109, 159, 113, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(109, 159, 113, 0.4);
+        }
+
+        button::after {
+            content: "";
+            position: absolute;
+            top: -50%;
+            left: -60%;
+            width: 200%;
+            height: 200%;
+            background: rgba(255, 255, 255, 0.2);
+            transform: rotate(30deg);
+            transition: all 0.3s;
+        }
+
+        button:hover::after {
+            left: 100%;
+        }
+
+        input, select {
+            display: block;
+            width: 100%;
+            padding: 12px 15px;
+            margin: 15px 0;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            color: white;
+            font-size: 1rem;
+            transition: all 0.3s;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: var(--secondary);
+            box-shadow: 0 0 10px rgba(109, 159, 113, 0.5);
+        }
+
+        .correct {
+            background: var(--correct) !important;
+            color: white;
+        }
+
+        .incorrect {
+            background: var(--incorrect) !important;
+            color: white;
+        }
+
+        .results {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 25px;
+            border-radius: 12px;
+            margin-top: 30px;
+            border-top: 3px solid var(--secondary);
+        }
+
+        .stats {
+            background: rgba(109, 159, 113, 0.2);
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 25px;
+            text-align: center;
+        }
+
+        .stat-item {
+            display: inline-block;
+            margin: 0 15px;
+            padding: 10px 20px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 8px;
+            min-width: 120px;
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--secondary);
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+
+        .teacher-portal {
+            display: none;
+            background: rgba(30, 30, 30, 0.9);
+            padding: 30px;
+            border-radius: 15px;
+            margin-top: 20px;
+            border: 1px solid rgba(109, 159, 113, 0.3);
+        }
+
+        .teacher-results table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .teacher-results th, .teacher-results td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .teacher-results th {
+            background: linear-gradient(to right, var(--primary), #2c4a6b);
+            color: white;
+        }
+
+        .teacher-results tr:nth-child(even) {
+            background: rgba(109, 159, 113, 0.05);
+        }
+
+        .resume-alert {
+            background: var(--accent);
+            color: var(--text-dark);
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .math-symbol {
+            position: absolute;
+            font-size: 8rem;
+            opacity: 0.03;
+            z-index: -1;
+            font-weight: bold;
+        }
+
+        .symbol-1 {
+            top: 50px;
+            right: 50px;
+        }
+
+        .symbol-2 {
+            bottom: 50px;
+            left: 50px;
+        }
+
+        .subject-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .subject-tab {
+            padding: 10px 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .subject-tab:hover {
+            background: rgba(109, 159, 113, 0.3);
+        }
+
+        .subject-tab.active {
+            background: var(--secondary);
+            color: var(--text-dark);
+            font-weight: bold;
+        }
+
+        .subject-content {
+            display: none;
+        }
+
+        .subject-content.active {
+            display: block;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .options label {
+                padding: 12px 15px;
+            }
+            
+            button {
+                width: 100%;
+            }
+            
+            .stat-item {
+                display: block;
+                margin: 10px 0;
+            }
+
+            .subject-tabs {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="math-symbol symbol-1">∑</div>
+    <div class="math-symbol symbol-2">π</div>
+
+    <!-- Registration Page -->
+    <div class="container" id="registration">
+        <h1>Academic Proficiency Test</h1>
+        <div class="teacher-login">
+            <h3>Teacher Access</h3>
+            <input type="password" id="teacherPassword" placeholder="Enter teacher password">
+            <button onclick="showTeacherPortal()" style="background: var(--primary); color: white;">View Results</button>
+        </div>
+        <p style="font-size: 1.1rem; margin-top: 30px; color: var(--secondary);">Student Registration:</p>
+        <input type="text" id="name" placeholder="Full Name" required>
+        <input type="tel" id="phone" placeholder="Phone Number" required>
+        
+        <select id="sex" required>
+            <option value="" disabled selected>Select Sex</option>
+            <option value="Male">Male</option>
+            <option value="Female">Female</option>
+        </select>
+        
+        <select id="department" required onchange="updateSubjectOptions()">
+            <option value="" disabled selected>Select Department</option>
+            <option value="Science">Science</option>
+            <option value="Art">Art</option>
+            <option value="Commercial">Commercial</option>
+        </select>
+        
+        <div id="subjectCombinationContainer" style="display: none;">
+            <select id="subjectCombination" multiple required>
+                <!-- Options will be populated based on department -->
+            </select>
+            <small style="opacity: 0.7;">Hold Ctrl/Cmd to select multiple subjects</small>
+        </div>
+        
+        <button onclick="validateRegistration()" style="margin-top: 20px;">Proceed</button>
+    </div>
+
+    <!-- Instructions Page -->
+    <div class="container" id="instructionsContainer" style="display: none;">
+        <h2>Test Instructions</h2>
+        <div class="question-box">
+            <h3>Important Information:</h3>
+            <p>You have <strong>10 minutes</strong> to complete the examination.</p>
+            <p>Total questions: <strong>14</strong> (3 questions on each of your selected subjects and 5 English questions).</p>
+            <p>The test is strictly timed and will automatically submit when time elapses.</p>
+            <p>Malpractice of any form is prohibited. The test will auto-submit if tab switching is detected.</p>
+            <p>You can switch between subjects using the tabs at the top of the test page.</p>
+            <p>All answers will be saved automatically as you progress through the test.</p>
+            <p>Good luck! Do your best.</p>
+        </div>
+        <button onclick="startTest()">Start Test</button>
+    </div>
+
+    <!-- Test Container -->
+    <div class="container" id="testContainer" style="display: none;">
+        <div class="timer" id="timer">10:00</div>
+        <h2 id="testTitle">Academic Proficiency Test</h2>
+        <div id="resumeAlert" class="resume-alert" style="display: none;">
+            <h3>Incomplete Test Found!</h3>
+            <p>Would you like to resume your previous attempt?</p>
+            <div style="display: flex; gap: 10px; justify-content: center;">
+                <button onclick="resumeTest()">Resume Test</button>
+                <button onclick="startNewTest()" style="background: var(--accent);">Start New Test</button>
+            </div>
+        </div>
+        
+        <div class="subject-tabs" id="subjectTabs">
+            <!-- Subject tabs will be generated here -->
+        </div>
+        
+        <div id="questionsContainer">
+            <!-- Questions will be loaded here based on selected subject -->
+        </div>
+        
+        <button onclick="submitTest()" id="submitBtn">Submit Answers</button>
+    </div>
+
+    <!-- Results Container -->
+    <div class="container" id="resultsContainer" style="display: none;">
+        <h2>Test Results</h2>
+        <div id="stats" class="stats">
+            <div class="stat-item">
+                <div class="stat-value" id="scoreValue">0/14</div>
+                <div class="stat-label">Total Score</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value" id="percentageValue">0%</div>
+                <div class="stat-label">Percentage</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value" id="timeValue">0m 0s</div>
+                <div class="stat-label">Time Used</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value" id="totalScoreValue">0</div>
+                <div class="stat-label">Aggregate Score</div>
+            </div>
+        </div>
+        
+        <div id="subjectResultsContainer">
+            <!-- Subject-wise results will be displayed here -->
+        </div>
+        
+        <div id="results"></div>
+        <button onclick="location.reload()" style="background: var(--primary); color: white;">Return to Home</button>
+    </div>
+
+    <!-- Teacher Portal -->
+    <div class="container teacher-portal" id="teacherPortal">
+        <h2>Teacher Results Portal</h2>
+        <div style="display: flex; gap: 10px; justify-content: center;">
+            <button onclick="exportResults()">Export Results</button>
+            <button onclick="clearResults()" style="background: var(--accent);">Clear All Results</button>
+        </div>
+        <div class="teacher-results" id="teacherResults"></div>
+        <button onclick="location.reload()" style="background: var(--primary); color: white; margin-top: 20px;">Return to Home</button>
+    </div>
+
+    <script>
+        // Questions database
+        const questionsDatabase = {
+            English: [
+                {
+                    question: "Identify the noun: 'She bought a beautiful dress.'",
+                    options: ["She", "Bought", "Beautiful", "Dress"],
+                    correct: 3
+                },
+                {
+                    question: "What is the past tense of 'go'?",
+                    options: ["Gone", "Went", "Going", "Goes"],
+                    correct: 1
+                },
+                {
+                    question: "'The stars danced in the sky' is an example of:",
+                    options: ["Simile", "Metaphor", "Personification", "Hyperbole"],
+                    correct: 2
+                },
+                {
+                    question: "Choose the correct spelling:",
+                    options: ["Accomodate", "Acommodate", "Accommodate", "Acomodate"],
+                    correct: 2
+                },
+                {
+                    question: "Which word is an antonym of 'generous'?",
+                    options: ["Kind", "Selfish", "Brave", "Happy"],
+                    correct: 1
+                }
+            ],
+            Mathematics: [
+                {
+                    question: "What is the value of 3² + 4²?",
+                    options: ["5", "7", "12", "25"],
+                    correct: 3
+                },
+                {
+                    question: "If 2x - 5 = 11, what is the value of x?",
+                    options: ["3", "6", "8", "16"],
+                    correct: 2
+                },
+                {
+                    question: "What is the area of a circle with radius 7 cm? (Take π = 22/7)",
+                    options: ["44 cm²", "154 cm²", "308 cm²", "616 cm²"],
+                    correct: 1
+                }
+            ],
+            Physics: [
+                {
+                    question: "What is the SI unit of force?",
+                    options: ["Joule", "Newton", "Watt", "Pascal"],
+                    correct: 1
+                },
+                {
+                    question: "Which law states, 'Every action has an equal and opposite reaction'?",
+                    options: ["Newton's 1st Law", "Newton's 2nd Law", "Newton's 3rd Law", "Law of Gravitation"],
+                    correct: 2
+                },
+                {
+                    question: "What type of image is formed by a convex lens when the object is placed between the lens and its focus?",
+                    options: ["Real and inverted", "Virtual and erect", "Magnified and real", "Diminished and virtual"],
+                    correct: 1
+                }
+            ],
+            Chemistry: [
+                {
+                    question: "What is the chemical symbol for gold?",
+                    options: ["Ag", "Au", "Fe", "Pb"],
+                    correct: 1
+                },
+                {
+                    question: "Which gas turns lime water milky?",
+                    options: ["Oxygen", "Carbon dioxide", "Nitrogen", "Hydrogen"],
+                    correct: 1
+                },
+                {
+                    question: "What is the pH of pure water?",
+                    options: ["0", "7", "10", "14"],
+                    correct: 1
+                }
+            ],
+            Biology: [
+                {
+                    question: "Which organelle is called the 'powerhouse of the cell'?",
+                    options: ["Nucleus", "Mitochondria", "Ribosome", "Chloroplast"],
+                    correct: 1
+                },
+                {
+                    question: "Photosynthesis occurs in which part of the plant?",
+                    options: ["Roots", "Leaves", "Stem", "Flowers"],
+                    correct: 1
+                },
+                {
+                    question: "Which blood group is the universal donor?",
+                    options: ["A", "B", "AB", "O"],
+                    correct: 3
+                }
+            ],
+            Government: [
+                {
+                    question: "Nigeria operates which system of government?",
+                    options: ["Parliamentary", "Presidential", "Monarchical", "Feudal"],
+                    correct: 1
+                },
+                {
+                    question: "The legislative arm of government is responsible for:",
+                    options: ["Implementing laws", "Interpreting laws", "Making laws", "Enforcing laws"],
+                    correct: 2
+                },
+                {
+                    question: "How many states are in Nigeria?",
+                    options: ["30", "36", "37", "40"],
+                    correct: 1
+                }
+            ],
+            Literature: [
+                {
+                    question: "Who wrote 'Things Fall Apart'?",
+                    options: ["Wole Soyinka", "Chinua Achebe", "Chimamanda Adichie", "Ngũgĩ wa Thiong'o"],
+                    correct: 1
+                },
+                {
+                    question: "A figure of speech that compares two unlike things using 'like' or 'as' is called:",
+                    options: ["Metaphor", "Simile", "Personification", "Hyperbole"],
+                    correct: 1
+                },
+                {
+                    question: "In drama, the protagonist is the:",
+                    options: ["Villain", "Main character", "Narrator", "Comic relief"],
+                    correct: 1
+                }
+            ],
+            CRS: [
+                {
+                    question: "Who betrayed Jesus for 30 pieces of silver?",
+                    options: ["Peter", "Judas Iscariot", "John", "Thomas"],
+                    correct: 1
+                },
+                {
+                    question: "The first book of the Bible is:",
+                    options: ["Exodus", "Genesis", "Leviticus", "Numbers"],
+                    correct: 1
+                },
+                {
+                    question: "Who was thrown into the lions' den but survived?",
+                    options: ["Moses", "Daniel", "David", "Solomon"],
+                    correct: 1
+                }
+            ],
+            Economics: [
+                {
+                    question: "What is the primary function of money?",
+                    options: ["Store of value", "Medium of exchange", "Unit of account", "All of the above"],
+                    correct: 3
+                },
+                {
+                    question: "Inflation refers to:",
+                    options: ["A fall in prices", "A rise in prices", "Stable prices", "None of the above"],
+                    correct: 1
+                },
+                {
+                    question: "Which sector contributes most to Nigeria's GDP?",
+                    options: ["Agriculture", "Oil and Gas", "Manufacturing", "Services"],
+                    correct: 1
+                }
+            ],
+            Accounts: [
+                {
+                    question: "The accounting equation is:",
+                    options: ["Assets = Liabilities + Capital", "Profit = Income - Expenses", "Revenue = Price × Quantity", "None of the above"],
+                    correct: 0
+                },
+                {
+                    question: "Which account increases with a debit entry?",
+                    options: ["Liability", "Capital", "Expense", "Revenue"],
+                    correct: 2
+                },
+                {
+                    question: "What is the normal balance for an asset account?",
+                    options: ["Credit", "Debit", "Both", "None"],
+                    correct: 1
+                }
+            ],
+            Commerce: [
+                {
+                    question: "A document used in international trade to guarantee payment is called:",
+                    options: ["Invoice", "Bill of Exchange", "Letter of Credit", "Receipt"],
+                    correct: 2
+                },
+                {
+                    question: "The process of buying and selling goods online is called:",
+                    options: ["E-commerce", "Retail", "Wholesale", "Barter"],
+                    correct: 0
+                },
+                {
+                    question: "Which of these is NOT a function of a commercial bank?",
+                    options: ["Accepting deposits", "Lending money", "Printing currency", "Issuing credit cards"],
+                    correct: 2
+                }
+            ]
+        };
+
+        // Configuration
+        const TEACHER_PASSWORD = "math123";
+        const TEST_DURATION = 600; // 10 minutes in seconds
+        let timeLeft = TEST_DURATION;
+        let timerId;
+        let userAnswers = {};
+        let testStarted = false;
+        let testSubmitted = false;
+        let startTime;
+        let endTime;
+        let selectedSubjects = [];
+        let currentSubject = '';
+
+        // Department to subjects mapping
+        const departmentSubjects = {
+            Science: ["Mathematics", "Physics", "Chemistry", "Biology"],
+            Art: ["Government", "Literature", "CRS", "Economics"],
+            Commercial: ["English", "Economics", "Accounts", "Commerce", "Mathematics"]
+        };
+
+        // Check for saved test on load
+        window.addEventListener('load', checkForSavedTest);
+
+        function checkForSavedTest() {
+            const savedTest = localStorage.getItem('savedTest');
+            if (savedTest) {
+                const data = JSON.parse(savedTest);
+                if (!data.completed) {
+                    document.getElementById('resumeAlert').style.display = 'block';
+                    document.getElementById('registration').style.display = 'none';
+                    document.getElementById('testContainer').style.display = 'block';
+                }
+            }
+        }
+
+        function updateSubjectOptions() {
+            const department = document.getElementById('department').value;
+            const subjectCombination = document.getElementById('subjectCombination');
+            const container = document.getElementById('subjectCombinationContainer');
+            
+            if (!department) {
+                container.style.display = 'none';
+                return;
+            }
+            
+            container.style.display = 'block';
+            subjectCombination.innerHTML = '';
+            
+            departmentSubjects[department].forEach(subject => {
+                const option = document.createElement('option');
+                option.value = subject;
+                option.textContent = subject;
+                subjectCombination.appendChild(option);
+            });
+        }
+
+        function validateRegistration() {
+            const name = document.getElementById('name').value.trim();
+            const phone = document.getElementById('phone').value.trim();
+            const sex = document.getElementById('sex').value;
+            const department = document.getElementById('department').value;
+            const subjectCombination = document.getElementById('subjectCombination');
+            
+            if (!name || !phone || !sex || !department) {
+                alert("Please fill in all required fields");
+                return;
+            }
+            
+            // Validate subject selection (must select exactly 3 plus English will be added automatically)
+            const selectedOptions = Array.from(subjectCombination.selectedOptions).map(option => option.value);
+            
+            if (selectedOptions.length !== 3) {
+                alert("Please select exactly 3 subjects for your department");
+                return;
+            }
+            
+            // Store selected subjects (add English automatically)
+            selectedSubjects = [...selectedOptions, "English"];
+            
+            // Proceed to instructions
+            document.getElementById('registration').style.display = 'none';
+            document.getElementById('instructionsContainer').style.display = 'block';
+        }
+
+        function startTest() {
+            document.getElementById('instructionsContainer').style.display = 'none';
+            document.getElementById('testContainer').style.display = 'block';
+            
+            // Initialize user answers structure
+            selectedSubjects.forEach(subject => {
+                userAnswers[subject] = Array(questionsDatabase[subject].length).fill(null);
+            });
+            
+            // Generate subject tabs
+            const tabsContainer = document.getElementById('subjectTabs');
+            tabsContainer.innerHTML = '';
+            
+            selectedSubjects.forEach((subject, index) => {
+                const tab = document.createElement('div');
+                tab.className = `subject-tab ${index === 0 ? 'active' : ''}`;
+                tab.textContent = subject;
+                tab.onclick = () => switchSubject(subject);
+                tabsContainer.appendChild(tab);
+            });
+            
+            // Set first subject as active
+            currentSubject = selectedSubjects[0];
+            renderQuestions(currentSubject);
+            
+            startTime = new Date();
+            
+            // Start timer after 3 seconds
+            setTimeout(() => {
+                testStarted = true;
+                timerId = setInterval(updateTimer, 1000);
+                setupSecurity();
+            }, 3000);
+        }
+
+        function switchSubject(subject) {
+            // Update active tab
+            document.querySelectorAll('.subject-tab').forEach(tab => {
+                tab.classList.toggle('active', tab.textContent === subject);
+            });
+            
+            currentSubject = subject;
+            renderQuestions(subject);
+        }
+
+        function renderQuestions(subject) {
+            const container = document.getElementById('questionsContainer');
+            container.innerHTML = '';
+            
+            const questions = questionsDatabase[subject];
+            
+            questions.forEach((q, i) => {
+                const div = document.createElement('div');
+                div.className = 'question-box';
+                div.innerHTML = `
+                    <h3>Q${i+1}: ${q.question}</h3>
+                    <div class="options" id="options-${i}">
+                        ${q.options.map((opt, j) => `
+                            <label>
+                                <input type="radio" name="q${i}" value="${j}" 
+                                    ${userAnswers[subject][i] === j ? 'checked' : ''}
+                                    onchange="saveAnswer('${subject}', ${i}, ${j})">
+                                ${String.fromCharCode(65 + j)}) ${opt}
+                            </label>
+                        `).join('')}
+                    </div>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        function saveAnswer(subject, questionIndex, answerIndex) {
+            userAnswers[subject][questionIndex] = answerIndex;
+            saveProgress();
+        }
+
+        function updateTimer() {
+            timeLeft--;
+            saveProgress();
+            
+            if (timeLeft <= 0) {
+                submitTest();
+            }
+            
+            updateTimerDisplay();
+        }
+
+        function updateTimerDisplay() {
+            const minutes = Math.floor(timeLeft / 60).toString().padStart(2, '0');
+            const seconds = (timeLeft % 60).toString().padStart(2, '0');
+            document.getElementById('timer').textContent = `${minutes}:${seconds}`;
+            
+            if (timeLeft <= 60) {
+                document.getElementById('timer').style.background = '#E74C3C';
+            }
+        }
+
+        function saveProgress() {
+            const saveData = {
+                answers: userAnswers,
+                timeLeft: timeLeft,
+                testStarted: testStarted,
+                completed: false,
+                name: document.getElementById('name').value.trim(),
+                phone: document.getElementById('phone').value.trim(),
+                sex: document.getElementById('sex').value,
+                department: document.getElementById('department').value,
+                subjects: selectedSubjects
+            };
+            localStorage.setItem('savedTest', JSON.stringify(saveData));
+        }
+
+        function setupSecurity() {
+            // Tab switching detection
+            document.addEventListener('visibilitychange', () => {
+                if (document.hidden && testStarted && !testSubmitted) {
+                    submitTest();
+                }
+            });
+            
+            // Prevent context menu
+            document.addEventListener('contextmenu', e => e.preventDefault());
+            
+            // Prevent keyboard shortcuts
+            document.addEventListener('keydown', (e) => {
+                if ((e.ctrlKey || e.metaKey) && testStarted && !testSubmitted) {
+                    e.preventDefault();
+                }
+            });
+        }
+
+        function resumeTest() {
+            const savedData = JSON.parse(localStorage.getItem('savedTest'));
+            userAnswers = savedData.answers;
+            timeLeft = savedData.timeLeft;
+            selectedSubjects = savedData.subjects;
+            startTime = new Date(new Date().getTime() - (TEST_DURATION - timeLeft) * 1000);
+            
+            document.getElementById('resumeAlert').style.display = 'none';
+            
+            // Generate subject tabs
+            const tabsContainer = document.getElementById('subjectTabs');
+            tabsContainer.innerHTML = '';
+            
+            selectedSubjects.forEach((subject, index) => {
+                const tab = document.createElement('div');
+                tab.className = `subject-tab ${index === 0 ? 'active' : ''}`;
+                tab.textContent = subject;
+                tab.onclick = () => switchSubject(subject);
+                tabsContainer.appendChild(tab);
+            });
+            
+            // Set first subject as active
+            currentSubject = selectedSubjects[0];
+            renderQuestions(currentSubject);
+            
+            if (savedData.testStarted) {
+                testStarted = true;
+                timerId = setInterval(updateTimer, 1000);
+                setupSecurity();
+                updateTimerDisplay();
+            }
+        }
+
+        function startNewTest() {
+            localStorage.removeItem('savedTest');
+            location.reload();
+        }
+
+        function submitTest() {
+            if (testSubmitted) return;
+            testSubmitted = true;
+            
+            clearInterval(timerId);
+            endTime = new Date();
+            
+            // Calculate results
+            const results = calculateResults();
+            saveResults(results);
+            
+            // Show results
+            showResults(results);
+            
+            // Clear saved progress
+            localStorage.removeItem('savedTest');
+        }
+
+        function calculateResults() {
+            const results = {
+                bySubject: {},
+                totalCorrect: 0,
+                totalQuestions: 0,
+                timeUsed: TEST_DURATION - timeLeft
+            };
+            
+            // Calculate scores per subject
+            selectedSubjects.forEach(subject => {
+                const questions = questionsDatabase[subject];
+                let correct = 0;
+                
+                userAnswers[subject].forEach((answer, index) => {
+                    if (answer === questions[index].correct) {
+                        correct++;
+                    }
+                });
+                
+                results.bySubject[subject] = {
+                    correct,
+                    total: questions.length,
+                    percentage: (correct / questions.length * 100).toFixed(1)
+                };
+                
+                results.totalCorrect += correct;
+                results.totalQuestions += questions.length;
+            });
+            
+            // Calculate overall percentage
+            results.overallPercentage = (results.totalCorrect / results.totalQuestions * 100).toFixed(1);
+            
+            // Calculate aggregate score (sum of all subject percentages)
+            results.aggregateScore = Object.values(results.bySubject).reduce(
+                (sum, subject) => sum + parseFloat(subject.percentage), 0);
+            
+            return results;
+        }
+
+        function saveResults(results) {
+            const name = document.getElementById('name').value.trim();
+            const phone = document.getElementById('phone').value.trim();
+            const sex = document.getElementById('sex').value;
+            const department = document.getElementById('department').value;
+            
+            const resultData = {
+                name,
+                phone,
+                sex,
+                department,
+                subjects: selectedSubjects,
+                results,
+                timestamp: new Date().toISOString()
+            };
+            
+            const allResults = JSON.parse(localStorage.getItem('testResults') || '[]');
+            allResults.push(resultData);
+            localStorage.setItem('testResults', JSON.stringify(allResults));
+        }
+
+        function showResults(results) {
+            document.getElementById('testContainer').style.display = 'none';
+            const resultsContainer = document.getElementById('resultsContainer');
+            resultsContainer.style.display = 'block';
+            
+            // Update stats display
+            document.getElementById('scoreValue').textContent = `${results.totalCorrect}/${results.totalQuestions}`;
+            document.getElementById('percentageValue').textContent = `${results.overallPercentage}%`;
+            
+            const minutesUsed = Math.floor(results.timeUsed / 60);
+            const secondsUsed = results.timeUsed % 60;
+            document.getElementById('timeValue').textContent = `${minutesUsed}m ${secondsUsed}s`;
+            
+            document.getElementById('totalScoreValue').textContent = `${results.aggregateScore}`;
+            
+            // Show subject-wise results
+            const subjectResultsContainer = document.getElementById('subjectResultsContainer');
+            subjectResultsContainer.innerHTML = '<h3>Subject-wise Performance:</h3>';
+            
+            selectedSubjects.forEach(subject => {
+                const subjectResult = results.bySubject[subject];
+                const div = document.createElement('div');
+                div.className = 'question-box';
+                div.innerHTML = `
+                    <h4>${subject}: ${subjectResult.correct}/${subjectResult.total} (${subjectResult.percentage}%)</h4>
+                `;
+                subjectResultsContainer.appendChild(div);
+            });
+            
+            // Show detailed question review
+            let resultsHTML = `<div class="results"><h3>Question Review:</h3>`;
+            
+            selectedSubjects.forEach(subject => {
+                resultsHTML += `<h4 style="margin-top: 20px;">${subject} Questions:</h4>`;
+                
+                questionsDatabase[subject].forEach((q, i) => {
+                    const userAnswer = userAnswers[subject][i];
+                    const isCorrect = userAnswer === q.correct;
+                    
+                    resultsHTML += `
+                        <div class="question-box">
+                            <h4>Q${i+1}: ${q.question}</h4>
+                            <div class="options">
+                    `;
+                    
+                    q.options.forEach((opt, j) => {
+                        const isUserAnswer = j === userAnswer;
+                        const isCorrectAnswer = j === q.correct;
+                        let optionClass = '';
+                        
+                        if (isCorrectAnswer) {
+                            optionClass = 'correct';
+                        } else if (isUserAnswer && !isCorrect) {
+                            optionClass = 'incorrect';
+                        }
+                        
+                        resultsHTML += `
+                            <label class="${optionClass}">
+                                ${String.fromCharCode(65 + j)}) ${opt}
+                                ${isUserAnswer ? ' (Your answer)' : ''}
+                                ${isCorrectAnswer && !isUserAnswer ? ' (Correct answer)' : ''}
+                            </label>
+                        `;
+                    });
+                    
+                    resultsHTML += `</div></div>`;
+                });
+            });
+            
+            resultsHTML += `</div>`;
+            document.getElementById('results').innerHTML = resultsHTML;
+        }
+
+        function showTeacherPortal() {
+            const password = document.getElementById('teacherPassword').value;
+            if (password === TEACHER_PASSWORD) {
+                document.getElementById('registration').style.display = 'none';
+                document.getElementById('teacherPortal').style.display = 'block';
+                
+                const results = JSON.parse(localStorage.getItem('testResults') || '[]');
+                const teacherResults = document.getElementById('teacherResults');
+                teacherResults.innerHTML = '';
+                
+                results.forEach((result, index) => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${index + 1}</td>
+                        <td>${result.name}</td>
+                        <td>${result.phone}</td>
+                        <td>${result.sex}</td>
+                        <td>${result.department}</td>
+                        <td>${result.subjects.join(', ')}</td>
+                        <td>${result.results.totalCorrect}/${result.results.totalQuestions}</td>
+                        <td>${result.results.overallPercentage}%</td>
+                        <td>${result.timestamp}</td>
+                    `;
+                    teacherResults.appendChild(row);
+                });
+            } else {
+                alert("Incorrect password");
+            }
+        }
+
+        function exportResults() {
+            const results = JSON.parse(localStorage.getItem('testResults') || '[]');
+            const csvContent = results.map((result, index) => {
+                return [
+                    index + 1,
+                    result.name,
+                    result.phone,
+                    result.sex,
+                    result.department,
+                    result.subjects.join(', '),
+                    `${result.results.totalCorrect}/${result.results.totalQuestions}`,
+                    result.results.overallPercentage + '%',
+                    result.timestamp
+                ].join(',');
+            }).join('\n');
+            
+            const blob = new Blob([csvContent], { type: 'text/csv' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = 'test_results.csv';
+            link.click();
+        }
+
+        function clearResults() {
+            localStorage.removeItem('testResults');
+            document.getElementById('teacherResults').innerHTML = '';
+        }
+    </script>
+</body>
+</html>
